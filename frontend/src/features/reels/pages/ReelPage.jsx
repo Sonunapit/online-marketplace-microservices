@@ -2,7 +2,7 @@ import Navbar from "../../../components/navbar/Navbar";
 
 import ReelCard from "../../../components/reel/Reelcard.jsx";
 
-import reelsData from "../../../components/reel/reelsData";
+import reelsData from "../../../components/reel/reelsData.js";
 
 const ReelPage = () => {
 
