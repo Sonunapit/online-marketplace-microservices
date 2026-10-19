@@ -1,33 +1,37 @@
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
 
-const paymentRoutes = require("./routes/payment.routes");
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
+
+const paymentRoutes = require('./routes/payment.routes');
 
 const app = express();
 
-// CORS
-app.use(
-  cors({
-    origin: "http://localhost:5173", // React/Vite Frontend
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://online-marketplace-microservices.vercel.app'
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With'
+  ]
+}));
 
 app.use(express.json());
-
 app.use(cookieParser());
 
-
-app.get("/",(req,res)=> {
+app.get('/', (req, res) => {
   res.status(200).json({
-    message:"Payment service is running"
-  })
-})
+    message: 'Payment service is running'
+  });
+});
 
-app.use(
-  "/api/payments",
-  paymentRoutes
-);
+app.use('/api/payments', paymentRoutes);
 
 module.exports = app;
