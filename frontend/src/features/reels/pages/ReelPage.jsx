@@ -1,6 +1,6 @@
 import Navbar from "../../../components/navbar/Navbar";
 
-import ReelCard from "../../../components/reel/ReelCard";
+import ReelCard from "../../../components/reel/Reelcard.jsx";
 
 import reelsData from "../../../components/reel/reelsData";
 
