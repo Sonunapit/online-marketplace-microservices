@@ -1,8 +1,8 @@
 
 const express = require('express');
-const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const cartRoutes = require('./routes/cart.routes');
+const cors = require('cors');
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
@@ -23,10 +23,11 @@ app.use(cookieParser());
 
 app.get('/', (req, res) => {
   res.status(200).json({
-    message: 'Cart service is running'
+    message: 'Auth service is running'
   });
 });
 
-app.use('/api/cart', cartRoutes);
+// Auth routes
+app.use('/api/auth', authRoutes);
 
 module.exports = app;
