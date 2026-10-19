@@ -1,24 +1,35 @@
+
 const express = require('express');
-const cors = require('cors'); // Ensure you have installed this: npm install cors
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const cartRoutes = require('./routes/cart.routes');
 
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://online-marketplace-microservices.vercel.app'
+];
 
 app.use(cors({
-  origin: "http://localhost:5173", 
-  credentials: true               
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With'
+  ]
 }));
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.get("/",(req,res)=> {
+app.get('/', (req, res) => {
   res.status(200).json({
-    message:"Cart service is running"
-  })
-})
+    message: 'Cart service is running'
+  });
+});
 
 app.use('/api/cart', cartRoutes);
 
