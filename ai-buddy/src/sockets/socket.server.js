@@ -9,37 +9,43 @@ const agent = require("../agent/agent");
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: "http://localhost:5173",
       credentials: true,
     },
   });
 
-  io.use((socket, next) => {
-    try {
-      const cookies = socket.handshake.headers.cookie;
+ io.use((socket, next) => {
+  console.log(
+    "HANDSHAKE COOKIE =>",
+    socket.handshake.headers.cookie
+  );
 
-      if (!cookies) {
-        return next(new Error("No cookies found"));
-      }
+  try {
+    const cookies = socket.handshake.headers.cookie;
 
-      const { token } = cookie.parse(cookies);
-
-      if (!token) {
-        return next(new Error("Token not found"));
-      }
-
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      socket.user = decoded;
-      socket.token = token;
-
-      console.log("Socket Token:", socket.token);
-
-      next();
-    } catch (error) {
-      next(error);
+    if (!cookies) {
+      return next(new Error("No cookies found"));
     }
-  });
+
+    const { token } = cookie.parse(cookies);
+
+    if (!token) {
+      return next(new Error("Token not found"));
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    socket.user = decoded;
+    socket.token = token;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
   io.on("connection", (socket) => {
     console.log("Connected:", socket.id);

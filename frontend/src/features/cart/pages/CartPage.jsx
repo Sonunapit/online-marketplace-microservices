@@ -5,6 +5,7 @@ import EmptyState from "../../../components/common/EmptyState";
 import { useNavigate } from "react-router-dom";
 import { getCart, removeCartItem } from "../services/cart.service";
 
+
 const CartPage = () => {
   const [cartItems, setCartItems] = useState([]);
   const [totals, setTotals] = useState({});

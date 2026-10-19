@@ -4,36 +4,51 @@ const axios = require("axios");
 
 const searchProduct = tool(
   async ({ query, token }) => {
+    console.log("SEARCH TOKEN:", token);
+
     const response = await axios.get(
-      `http://localhost:3001/api/products?q=${encodeURIComponent(query)}`,
+      `Market-ALB-2034128545.ap-south-1.elb.amazonaws.com/api/products?q=${encodeURIComponent(query)}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       },
     );
+
     const product = response.data.data[0];
 
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
     return JSON.stringify({
-      productId: product._id,
+      productId: product._id.toString(),
       title: product.title,
-      price: product.price.amount,
+      price: product.price?.amount || 0,
+      description: product.description || "",
+      image: product.images?.[0]?.url || product.image || "",
+      category: product.category?.name || "",
+      stock: product.stock || 0,
+      productUrl: `http://localhost:5173/product/${product._id}`,
     });
   },
   {
     name: "searchProduct",
-    description: "Search for products based on a query",
+    description: "Search a product and return product details",
     schema: z.object({
-      query: z.string().describe("The search query for products"),
+      query: z.string(),
+      token: z.string().optional(),
     }),
   },
 );
 
 const addProductToCart = tool(
   async ({ productId, qty = 1, token }) => {
-    console.log("TOOL TOKEN:", token);
-    await axios.post(
-      "http://localhost:3002/api/cart/items",
+    console.log("PRODUCT ID RECEIVED:", productId);
+    console.log("CART TOKEN:", token);
+
+    const response = await axios.post(
+      `Market-ALB-2034128545.ap-south-1.elb.amazonaws.com/api/cart/items`,
       {
         productId,
         qty,
@@ -45,14 +60,15 @@ const addProductToCart = tool(
       },
     );
 
-    return `Added product ${productId} (qty: ${qty}) to cart`;
+    return response.data;
   },
   {
     name: "addProductToCart",
-    description: "Add a product to the shopping cart",
+    description: "Add product to cart",
     schema: z.object({
       productId: z.string(),
       qty: z.number().default(1),
+      token: z.string().optional(),
     }),
   },
 );

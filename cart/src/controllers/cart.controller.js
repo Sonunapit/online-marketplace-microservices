@@ -70,7 +70,7 @@ async function addItemToCart(req, res) {
     }
 
     const response = await axios.get(
-      `http://localhost:3001/api/products/${productId}`,
+      `Market-ALB-2034128545.ap-south-1.elb.amazonaws.com/api/products/${productId}`,
     );
 
     console.log("PRODUCT RESPONSE =>", response.data);
@@ -153,7 +153,7 @@ async function updateItemQuantity(req, res) {
     }
 
     const response = await axios.get(
-      `http://localhost:3001/api/products/${productId}`,
+      `Market-ALB-2034128545.ap-south-1.elb.amazonaws.com/api/products/${productId}`,
     );
 
     const product = response.data.product;

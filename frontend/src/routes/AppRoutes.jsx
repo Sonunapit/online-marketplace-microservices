@@ -3,6 +3,8 @@ import { Routes, Route } from "react-router-dom";
 // Pages
 import HomePage from "../pages/Homepage";
 
+import AiBuddyPage from "../features/aiBuddy/pages/AiBuddyPage"
+
 import NotFound from "../pages/NotFound";
 
 // Auth
@@ -39,6 +41,8 @@ import ProfilePage from "../features/profile/pages/ProfilePage";
 import SellerDashboard from "../features/seller/pages/SellerDashboard";
 import InventoryPage from "../features/seller/pages/InventoryPage";
 import AnalyticsPage from "../features/seller/pages/AnalyticsPage";
+
+
 
 // Protected Routes
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -130,6 +134,8 @@ const AppRoutes = () => {
       <Route path="/seller/inventory" element={<InventoryPage />} />
 
       <Route path="/seller/analytics" element={<AnalyticsPage />} />
+
+      <Route path="/ai-buddy" element={<AiBuddyPage />} />
 
       {/* 404 */}
       <Route path="*" element={<NotFound />} />

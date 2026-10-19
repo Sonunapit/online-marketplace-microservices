@@ -1,5 +1,5 @@
 import Navbar from "../components/navbar/Navbar";
-
+import FloatingAiBuddy from "../features/aiBuddy/components/FloatingAiBuddy";
 const HomePage = () => {
 
   return (
@@ -7,6 +7,7 @@ const HomePage = () => {
     <div className="min-h-screen bg-gray-100 pb-24">
 
       <Navbar />
+      <FloatingAiBuddy />
 
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-5 py-10 md:py-20">

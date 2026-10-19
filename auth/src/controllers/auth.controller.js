@@ -2,7 +2,7 @@ const userModel = require("../models/user.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const redis = require("../db/redis");
-const { body, validationResult } = require('express-validator');
+const { body, validationResult } = require("express-validator");
 const { publishToQueue } = require("../broker/broker");
 
 async function registerUser(req, res) {
@@ -10,7 +10,8 @@ async function registerUser(req, res) {
     username,
     email,
     password,
-    fullName: { firstName, lastName },role
+    fullName: { firstName, lastName },
+    role,
   } = req.body;
 
   const isUserAlreadyExists = await userModel.findOne({
@@ -31,21 +32,18 @@ async function registerUser(req, res) {
       firstName,
       lastName,
     },
-    role: role || 'user'
+    role: role || "user",
   });
 
   await Promise.all([
-    publishToQueue('AUTH_NOTIFICATION.USER_CREATED',{
-    id: user._id,
-    username: user.username,
-    email:user.email,
-    fullName: user.fullName,
+    publishToQueue("AUTH_NOTIFICATION.USER_CREATED", {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
     }),
-    publishToQueue("AUTH_SELLER_DASHBOARD.USER_CREATED", user)
-  ]) 
-    
-  
-
+    publishToQueue("AUTH_SELLER_DASHBOARD.USER_CREATED", user),
+  ]);
 
   const token = jwt.sign(
     {
@@ -110,6 +108,7 @@ async function loginUser(req, res) {
   res.cookie("token", token, {
     httpOnly: true,
     secure: true,
+    sameSite: "lax",
     maxAge: 24 * 60 * 60 * 1000,
   });
 
@@ -158,23 +157,22 @@ async function logoutUser(req, res) {
   });
 }
 
-async function getUserAddresses(req,res){
-  const id = req.user.id
-  const user = await userModel.findById(id).select('addresses')
-  if(!user){
+async function getUserAddresses(req, res) {
+  const id = req.user.id;
+  const user = await userModel.findById(id).select("addresses");
+  if (!user) {
     return res.status(404).json({
-      message:"User not found"
-    })
+      message: "User not found",
+    });
   }
 
   return res.status(200).json({
-    message:"User addresses fetched successfuly",
-    addresses: user.addresses
-  })
+    message: "User addresses fetched successfuly",
+    addresses: user.addresses,
+  });
 }
 
 async function addUserAddresses(req, res) {
-
   const user = await userModel.findById(req.user.id);
 
   const addressData = req.body;
@@ -186,29 +184,24 @@ async function addUserAddresses(req, res) {
 
   // If current address default=true
   if (addressData.default === true) {
-
     user.addresses.forEach((addr) => {
       addr.default = false;
     });
-
   }
 
   user.addresses.push(addressData);
 
   await user.save();
 
-  const addedAddress =
-    user.addresses[user.addresses.length - 1];
+  const addedAddress = user.addresses[user.addresses.length - 1];
 
   return res.status(201).json({
     message: "Address added successfully",
     address: addedAddress,
   });
-
 }
 
 async function deleteUserAddress(req, res) {
-
   const id = req.user.id;
 
   const { addressId } = req.params;
@@ -220,7 +213,7 @@ async function deleteUserAddress(req, res) {
         addresses: { _id: addressId },
       },
     },
-    { new: true }
+    { new: true },
   );
 
   if (!user) {
@@ -230,7 +223,7 @@ async function deleteUserAddress(req, res) {
   }
 
   const addressExists = user.addresses.some(
-    (addr) => addr._id.toString() === addressId
+    (addr) => addr._id.toString() === addressId,
   );
 
   if (addressExists) {
@@ -243,7 +236,6 @@ async function deleteUserAddress(req, res) {
     message: "Address deleted successfully",
     addresses: user.addresses,
   });
-
 }
 
 module.exports = {
@@ -253,5 +245,5 @@ module.exports = {
   logoutUser,
   getUserAddresses,
   addUserAddresses,
-  deleteUserAddress
+  deleteUserAddress,
 };

@@ -1,5 +1,4 @@
 const { ChatGroq } = require("@langchain/groq");
-const { ToolMessage } = require("@langchain/core/messages");
 const tools = require("./tools");
 
 const model = new ChatGroq({
@@ -15,63 +14,119 @@ const llmWithTools = model.bindTools([
 
 const agent = {
   async invoke(input, config) {
-    const messages = input.messages;
-
     try {
       console.log("CONFIG:", config);
 
-      let response = await llmWithTools.invoke(messages);
+      const userMessage =
+        input.messages[input.messages.length - 1].content.toLowerCase();
 
-      while (response.tool_calls && response.tool_calls.length > 0) {
-        const toolMessages = [];
+      const response = await llmWithTools.invoke(input.messages);
 
-        for (const toolCall of response.tool_calls) {
-          console.log("Tool Call:", toolCall);
+      // Normal chat response
+      if (!response.tool_calls?.length) {
+        return {
+          messages: [
+            {
+              role: "assistant",
+              content: response.content,
+            },
+          ],
+        };
+      }
 
-          const tool = tools[toolCall.name];
+      const firstToolCall = response.tool_calls[0];
 
-          if (!tool) {
-            throw new Error(`Tool ${toolCall.name} not found`);
-          }
+      console.log("FIRST TOOL CALL:", firstToolCall);
 
-          const result = await tool.invoke({
-            ...toolCall.args,
-            token: config?.token,
-          });
+      // Handle Product Search
+      if (firstToolCall.name === "searchProduct") {
+        const searchResult = await tools.searchProduct.invoke({
+          ...firstToolCall.args,
+          token: config?.token,
+        });
 
-          console.log("Tool Result:", result);
+        console.log("SEARCH RESULT RAW:", searchResult);
 
-          toolMessages.push(
-            new ToolMessage({
-              content: String(result),
-              tool_call_id: toolCall.id,
-            }),
-          );
+        const product = JSON.parse(searchResult);
+
+        console.log("PARSED PRODUCT:", product);
+
+        const wantsCart =
+          userMessage.includes("add to cart") ||
+          userMessage.includes("add my cart") ||
+          userMessage.includes("cart");
+
+        // Only search request
+        if (!wantsCart) {
+          return {
+            messages: [
+              {
+                role: "assistant",
+                type: "product",
+                product: {
+                  _id: product.productId,
+                  name: product.title,
+                  description: product.description,
+                  images: [
+                    {
+                      url: product.image,
+                    },
+                  ],
+                  price: {
+                    amount: product.price,
+                  },
+                },
+              },
+            ],
+          };
         }
 
-        response = await llmWithTools.invoke([
-          ...messages,
-          response,
-          ...toolMessages,
-        ]);
+        console.log("ADDING TO CART:", {
+          productId: product.productId,
+          qty: 1,
+        });
+
+        const cartResult = await tools.addProductToCart.invoke({
+          productId: product.productId,
+          qty: 1,
+          token: config?.token,
+        });
+
+        console.log("CART RESULT:", cartResult);
+
+        return {
+          messages: [
+            {
+              role: "assistant",
+              content: `${product.title} added to cart successfully ✅`,
+            },
+          ],
+        };
       }
 
       return {
         messages: [
           {
             role: "assistant",
-            content: response.content,
+            content: "Unable to process request",
           },
         ],
       };
     } catch (error) {
       console.error("Agent Error:", error);
 
+      if (error.response?.data) {
+        console.error("API ERROR:", error.response.data);
+      }
+
       return {
         messages: [
           {
             role: "assistant",
-            content: error.message,
+            content:
+              error.response?.data?.message ||
+              error.message ||
+              "Something went wrong",
           },
         ],
       };
