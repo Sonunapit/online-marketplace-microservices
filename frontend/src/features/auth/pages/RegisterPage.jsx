@@ -1,209 +1,168 @@
+
 import { useState } from "react";
-
-import {
-  useNavigate,
-  Link,
-} from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 import Navbar from "../../../components/navbar/Navbar";
-
-import {
-  registerUser,
-} from "../services/auth.service";
+import { registerUser } from "../services/auth.service";
 
 const RegisterPage = () => {
-
   const navigate = useNavigate();
 
-  const [formData, setFormData] =
-    useState({
-      username: "",
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      role: "user",
-    });
+  const [formData, setFormData] = useState({
+    username: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "user",
+  });
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
+
+    if (loading) return;
 
     setLoading(true);
 
     try {
-
       await registerUser({
-
-        username: formData.username,
-
-        email: formData.email,
-
+        username: formData.username.trim(),
+        email: formData.email.trim(),
         password: formData.password,
-
         fullName: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
         },
-
         role: formData.role,
-
       });
 
-      alert("Register Successful");
-
-      navigate("/login");
-
+      alert("Registration successful! Please log in.");
+      navigate("/login", { replace: true });
     } catch (error) {
-
-      console.log(error);
+      console.error("Registration error:", error);
 
       alert(
         error.response?.data?.message ||
-        "Register Failed"
+        error.response?.data?.error ||
+        "Registration failed. Please try again."
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (
-
     <div className="min-h-screen bg-gray-100">
-
       <Navbar />
 
       <div className="flex items-center justify-center px-5 py-16">
-
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-6 md:p-10 rounded-3xl shadow-xl w-full max-w-[450px]"
+          className="w-full max-w-[450px] rounded-3xl bg-white p-6 shadow-xl md:p-10"
         >
-
-          <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-
+          <h1 className="mb-6 text-center text-3xl font-bold md:text-4xl">
             Register
-
           </h1>
 
-          {/* Username */}
           <input
             type="text"
             name="username"
             placeholder="Username"
-            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
+            value={formData.username}
             onChange={handleChange}
+            autoComplete="username"
+            required
+            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
-          {/* First Name */}
           <input
             type="text"
             name="firstName"
             placeholder="First Name"
-            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
+            value={formData.firstName}
             onChange={handleChange}
+            autoComplete="given-name"
+            required
+            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
-          {/* Last Name */}
           <input
             type="text"
             name="lastName"
             placeholder="Last Name"
-            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
+            value={formData.lastName}
             onChange={handleChange}
+            autoComplete="family-name"
+            required
+            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
-          {/* Email */}
           <input
             type="email"
             name="email"
             placeholder="Email"
-            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
+            value={formData.email}
             onChange={handleChange}
+            autoComplete="email"
+            required
+            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
-          {/* Password */}
           <input
             type="password"
             name="password"
             placeholder="Password"
-            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
+            value={formData.password}
             onChange={handleChange}
+            autoComplete="new-password"
+            minLength={8}
+            required
+            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
-          {/* Role */}
           <select
             name="role"
-            className="w-full border p-3 rounded-xl mb-6 outline-none focus:border-black"
+            value={formData.role}
             onChange={handleChange}
+            className="mb-6 w-full rounded-xl border p-3 outline-none focus:border-black"
           >
-
-            <option value="user">
-              User
-            </option>
-
-            <option value="seller">
-              Seller
-            </option>
-
+            <option value="user">User</option>
+            <option value="seller">Seller</option>
           </select>
 
-          {/* Button */}
           <button
+            type="submit"
             disabled={loading}
-            className="w-full bg-black text-white p-3 rounded-xl text-lg font-semibold hover:opacity-90 transition"
+            className="w-full rounded-xl bg-black p-3 text-lg font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-
-            {
-              loading
-                ? "Registering..."
-                : "Register"
-            }
-
+            {loading ? "Registering..." : "Register"}
           </button>
 
-          {/* Login Link */}
           <div className="mt-6 text-center">
-
             <p className="text-gray-500">
-
               Already have an account?
-
               <Link
                 to="/login"
-                className="text-black font-semibold ml-2 hover:underline"
+                className="ml-2 font-semibold text-black hover:underline"
               >
                 Login
               </Link>
-
             </p>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
-
   );
-
 };
 
 export default RegisterPage;
