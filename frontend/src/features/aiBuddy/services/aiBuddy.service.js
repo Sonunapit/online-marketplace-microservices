@@ -1,17 +1,18 @@
 import { io } from "socket.io-client";
 
-
-const socket = io(`Market-ALB-2034128545.ap-south-1.elb.amazonaws.com`, {
+const socket = io(import.meta.env.VITE_SOCKET_URL, {
   withCredentials: true,
-  transports: ["websocket"],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
 });
 
 socket.on("connect", () => {
-  console.log("✅ CONNECTED:", socket.id);
+  console.log("✅ Socket connected:", socket.id);
 });
 
-socket.on("connect_error", (err) => {
-  console.log("❌ CONNECT ERROR:", err.message);
+socket.on("connect_error", (error) => {
+  console.error("❌ Socket connection error:", error.message);
 });
 
 export default socket;

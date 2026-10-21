@@ -1,7 +1,14 @@
+
+import InstallPWA from "./components/InstallPWA";
 import AppRoutes from "./routes/AppRoutes";
 
 const App = () => {
-  return <AppRoutes />;
+  return (
+    <>
+      <InstallPWA />
+      <AppRoutes />
+    </>
+  );
 };
 
 export default App;
