@@ -1,168 +1,209 @@
-
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+
+import {
+  useNavigate,
+  Link,
+} from "react-router-dom";
+
 import Navbar from "../../../components/navbar/Navbar";
-import { registerUser } from "../services/auth.service";
+
+import {
+  registerUser,
+} from "../services/auth.service";
 
 const RegisterPage = () => {
+
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    username: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    role: "user",
-  });
+  const [formData, setFormData] =
+    useState({
+      username: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      role: "user",
+    });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    if (loading) return;
+    e.preventDefault();
 
     setLoading(true);
 
     try {
+
       await registerUser({
-        username: formData.username.trim(),
-        email: formData.email.trim(),
+
+        username: formData.username,
+
+        email: formData.email,
+
         password: formData.password,
+
         fullName: {
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
+          firstName: formData.firstName,
+          lastName: formData.lastName,
         },
+
         role: formData.role,
+
       });
 
-      alert("Registration successful! Please log in.");
-      navigate("/login", { replace: true });
+      alert("Register Successful");
+
+      navigate("/login");
+
     } catch (error) {
-      console.error("Registration error:", error);
+
+      console.log(error);
 
       alert(
         error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Registration failed. Please try again."
+        "Register Failed"
       );
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
   return (
+
     <div className="min-h-screen bg-gray-100">
+
       <Navbar />
 
       <div className="flex items-center justify-center px-5 py-16">
+
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-[450px] rounded-3xl bg-white p-6 shadow-xl md:p-10"
+          className="bg-white p-6 md:p-10 rounded-3xl shadow-xl w-full max-w-[450px]"
         >
-          <h1 className="mb-6 text-center text-3xl font-bold md:text-4xl">
+
+          <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+
             Register
+
           </h1>
 
+          {/* Username */}
           <input
             type="text"
             name="username"
             placeholder="Username"
-            value={formData.username}
+            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
             onChange={handleChange}
-            autoComplete="username"
-            required
-            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
+          {/* First Name */}
           <input
             type="text"
             name="firstName"
             placeholder="First Name"
-            value={formData.firstName}
+            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
             onChange={handleChange}
-            autoComplete="given-name"
-            required
-            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
+          {/* Last Name */}
           <input
             type="text"
             name="lastName"
             placeholder="Last Name"
-            value={formData.lastName}
+            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
             onChange={handleChange}
-            autoComplete="family-name"
-            required
-            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
+          {/* Email */}
           <input
             type="email"
             name="email"
             placeholder="Email"
-            value={formData.email}
+            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
             onChange={handleChange}
-            autoComplete="email"
-            required
-            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
+          {/* Password */}
           <input
             type="password"
             name="password"
             placeholder="Password"
-            value={formData.password}
+            className="w-full border p-3 rounded-xl mb-4 outline-none focus:border-black"
             onChange={handleChange}
-            autoComplete="new-password"
-            minLength={8}
-            required
-            className="mb-4 w-full rounded-xl border p-3 outline-none focus:border-black"
           />
 
+          {/* Role */}
           <select
             name="role"
-            value={formData.role}
+            className="w-full border p-3 rounded-xl mb-6 outline-none focus:border-black"
             onChange={handleChange}
-            className="mb-6 w-full rounded-xl border p-3 outline-none focus:border-black"
           >
-            <option value="user">User</option>
-            <option value="seller">Seller</option>
+
+            <option value="user">
+              User
+            </option>
+
+            <option value="seller">
+              Seller
+            </option>
+
           </select>
 
+          {/* Button */}
           <button
-            type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-black p-3 text-lg font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full bg-black text-white p-3 rounded-xl text-lg font-semibold hover:opacity-90 transition"
           >
-            {loading ? "Registering..." : "Register"}
+
+            {
+              loading
+                ? "Registering..."
+                : "Register"
+            }
+
           </button>
 
+          {/* Login Link */}
           <div className="mt-6 text-center">
+
             <p className="text-gray-500">
+
               Already have an account?
+
               <Link
                 to="/login"
-                className="ml-2 font-semibold text-black hover:underline"
+                className="text-black font-semibold ml-2 hover:underline"
               >
                 Login
               </Link>
+
             </p>
+
           </div>
+
         </form>
+
       </div>
+
     </div>
+
   );
+
 };
 
 export default RegisterPage;
