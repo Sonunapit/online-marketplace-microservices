@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { loginUser } from "../services/auth.service";
 import { useNavigate, Link } from "react-router-dom";
@@ -32,6 +31,9 @@ const LoginPage = () => {
         password: formData.password,
       });
 
+      // Debug: deployed site pe check karo backend kya bhej raha hai
+      console.log("login response:", response.data);
+
       const { token, user } = response.data || {};
 
       if (!token) {
@@ -42,21 +44,16 @@ const LoginPage = () => {
 
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
+      } else {
+        localStorage.removeItem("user"); // "undefined" kabhi save nahi hoga
       }
 
       alert("Login Successful");
       navigate("/profile", { replace: true });
     } catch (error) {
-      console.error(
-        "Login error:",
-        error.response?.data || error.message
-      );
+      console.error("Login error:", error.response?.data || error.message);
 
-      alert(
-        error.response?.data?.message ||
-        error.message ||
-        "Login Failed"
-      );
+      alert(error.response?.data?.message || error.message || "Login Failed");
     } finally {
       setLoading(false);
     }
@@ -71,9 +68,7 @@ const LoginPage = () => {
           onSubmit={handleSubmit}
           className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-[400px]"
         >
-          <h1 className="text-4xl font-bold mb-6 text-center">
-            Login
-          </h1>
+          <h1 className="text-4xl font-bold mb-6 text-center">Login</h1>
 
           <input
             required

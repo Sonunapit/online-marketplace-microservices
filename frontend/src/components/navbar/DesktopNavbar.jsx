@@ -9,22 +9,18 @@ const [user, setUser] =
 useState(null);
 
 useEffect(() => {
-const storedToken =
-localStorage.getItem("token");
+  const storedToken = localStorage.getItem("token");
+  const storedUser = localStorage.getItem("user");
 
+  setToken(storedToken);
 
-const storedUser =
-  localStorage.getItem("user");
-
-setToken(storedToken);
-
-if (storedUser) {
-  setUser(
-    JSON.parse(storedUser)
-  );
-}
-
-
+  if (storedUser && storedUser !== "undefined" && storedUser !== "null") {
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch {
+      localStorage.removeItem("user");
+    }
+  }
 }, []);
 
 return ( <nav
