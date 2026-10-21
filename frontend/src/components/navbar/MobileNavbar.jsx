@@ -1,164 +1,90 @@
-import {
-Link,
-useLocation,
-} from "react-router-dom";
-
-import {
-useEffect,
-useState,
-} from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { safeParse } from "../../utils/safeParse"; // path apne folder ke hisab se adjust karo
 
 const MobileNavbar = () => {
-const location = useLocation();
+  const location = useLocation();
 
-const [token, setToken] =
-useState(null);
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
 
-const [user, setUser] =
-useState(null);
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
 
-useEffect(() => {
-const storedToken =
-localStorage.getItem("token");
+    setToken(storedToken);
 
+    const parsedUser = safeParse(storedUser);
+    if (parsedUser) {
+      setUser(parsedUser);
+    } else if (storedUser) {
+      // kharab value (jaise "undefined") hata do
+      localStorage.removeItem("user");
+    }
+  }, []);
 
-const storedUser =
-  localStorage.getItem("user");
-
-setToken(storedToken);
-
-if (storedUser) {
-  setUser(
-    JSON.parse(storedUser)
-  );
-}
-
-
-}, []);
-
-return ( <nav
-   className="
-     md:hidden
-     fixed
-     bottom-0
-     left-0
-     right-0
-     bg-white
-     border-t
-     shadow-xl
-     z-50
-   "
- > <div className="flex justify-around items-center py-4">
-
-
-    {/* Home */}
-    <Link
-      to="/"
-      className={`flex flex-col items-center ${
-        location.pathname === "/"
-          ? "text-black"
-          : "text-gray-400"
-      }`}
-    >
-      <span className="text-2xl">
-        🏠
-      </span>
-
-      <span className="text-xs">
-        Home
-      </span>
-    </Link>
-
-    {/* Products */}
-    <Link
-      to="/products"
-      className={`flex flex-col items-center ${
-        location.pathname ===
-        "/products"
-          ? "text-black"
-          : "text-gray-400"
-      }`}
-    >
-      <span className="text-2xl">
-        🛍️
-      </span>
-
-      <span className="text-xs">
-        Products
-      </span>
-    </Link>
-
-    {/* Reels */}
-    <Link
-      to="/reels"
-      className={`flex flex-col items-center ${
-        location.pathname ===
-        "/reels"
-          ? "text-black"
-          : "text-gray-400"
-      }`}
-    >
-      <span className="text-2xl">
-        🎬
-      </span>
-
-      <span className="text-xs">
-        Reels
-      </span>
-    </Link>
-
-    {/* Cart Only For User */}
-    {token &&
-      user?.role ===
-        "user" && (
+  return (
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-xl z-50">
+      <div className="flex justify-around items-center py-4">
+        {/* Home */}
         <Link
-          to="/cart"
+          to="/"
           className={`flex flex-col items-center ${
-            location.pathname ===
-            "/cart"
-              ? "text-black"
-              : "text-gray-400"
+            location.pathname === "/" ? "text-black" : "text-gray-400"
           }`}
         >
-          <span className="text-2xl">
-            🛒
-          </span>
-
-          <span className="text-xs">
-            Cart
-          </span>
+          <span className="text-2xl">🏠</span>
+          <span className="text-xs">Home</span>
         </Link>
-      )}
 
-    {/* Profile */}
-    <Link
-      to={
-        token
-          ? "/profile"
-          : "/login"
-      }
-      className={`flex flex-col items-center ${
-        location.pathname ===
-        "/profile"
-          ? "text-black"
-          : "text-gray-400"
-      }`}
-    >
-      <span className="text-2xl">
-        👤
-      </span>
+        {/* Products */}
+        <Link
+          to="/products"
+          className={`flex flex-col items-center ${
+            location.pathname === "/products" ? "text-black" : "text-gray-400"
+          }`}
+        >
+          <span className="text-2xl">🛍️</span>
+          <span className="text-xs">Products</span>
+        </Link>
 
-      <span className="text-xs">
-        {token
-          ? "Profile"
-          : "Login"}
-      </span>
-    </Link>
-  </div>
-</nav>
+        {/* Reels */}
+        <Link
+          to="/reels"
+          className={`flex flex-col items-center ${
+            location.pathname === "/reels" ? "text-black" : "text-gray-400"
+          }`}
+        >
+          <span className="text-2xl">🎬</span>
+          <span className="text-xs">Reels</span>
+        </Link>
 
+        {/* Cart Only For User */}
+        {token && user?.role === "user" && (
+          <Link
+            to="/cart"
+            className={`flex flex-col items-center ${
+              location.pathname === "/cart" ? "text-black" : "text-gray-400"
+            }`}
+          >
+            <span className="text-2xl">🛒</span>
+            <span className="text-xs">Cart</span>
+          </Link>
+        )}
 
-);
+        {/* Profile */}
+        <Link
+          to={token ? "/profile" : "/login"}
+          className={`flex flex-col items-center ${
+            location.pathname === "/profile" ? "text-black" : "text-gray-400"
+          }`}
+        >
+          <span className="text-2xl">👤</span>
+          <span className="text-xs">{token ? "Profile" : "Login"}</span>
+        </Link>
+      </div>
+    </nav>
+  );
 };
 
 export default MobileNavbar;
