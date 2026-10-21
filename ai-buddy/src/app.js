@@ -6,7 +6,7 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://online-marketplace-microservices.vercel.app'
+  'https://online-marketplace-microservices-frontend.onrender.com'
 ];
 
 app.use(cors({
